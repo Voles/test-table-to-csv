@@ -4,52 +4,65 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jamstack Explorers - Up and Running with Serverless Functions</title>
+    <title>Testje</title>
   </head>
   <body>
-    <h1>Up and Running with Serverless Functions</h1>
-    <button id="fetch-btn">Fetch</button>
-    <button id="fetch-kanto-btn">Fetch Kanto Pokedex</button>
-    <button id="fetch-hoenn-btn">Fetch Hoenn Pokedex</button>
+    <h1>Testje</h1>
+    <p>
+      Kopieer en plak de link naar een uitslag en klik op 'Ophalen'. Je krijgt 'export.csv' als download aangeboden.
+    </p>
+    <p>
+      Voorbeeld link: <code>https://www.atletiek.nu/wedstrijd/uitslagenonderdeel/39076/400mH/#328876_76</code>
+    </p>
+    <input type="text" id="link" placeholder="https://www.atletiek.nu/wedstrijd/uitslagenonderdeel/39076/400mH/#328876_76">
+    <button id="fetch-btn">Ophalen</button>
     <p id="response-output">Response Placeholder</p>
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
         const fetchBtn = document.getElementById('fetch-btn')
-        const fetchKantoBtn = document.getElementById('fetch-kanto-btn')
-        const fetchHoennBtn = document.getElementById('fetch-hoenn-btn')
         const responseText = document.getElementById('response-output')
 
-        fetchKantoBtn.addEventListener('click', async () => {
-          const response = await fetch('/.netlify/functions/pokedex', {
-            method: 'POST',
-            body: JSON.stringify({
-              region: 'kanto'
-            })
-          }).then(response => response.json())
-
-          responseText.innerText = JSON.stringify(response)
-        })
-
-        fetchHoennBtn.addEventListener('click', async () => {
-          const response = await fetch('/.netlify/functions/pokedex', {
-            method: 'POST',
-            body: JSON.stringify({
-              region: 'hoenn'
-            })
-          }).then(response => response.json())
-
-          responseText.innerText = JSON.stringify(response)
-        })
-
         fetchBtn.addEventListener('click', async () => {
-          const response = await fetch('/.netlify/functions/hello-world').then(
+          const linkEl = document.getElementById('link')
+          const response = await fetch(`/.netlify/functions/hello-world?link=${encodeURI(linkEl.value)}`).then(
             response => response.json()
           )
 
           responseText.innerText = JSON.stringify(response)
+
+          let csv = arrayToCsv(response.message);
+
+          downloadBlob(csv, 'export.csv', 'text/csv;charset=utf-8;')
         })
       })
+
+      /** Convert a 2D array into a CSV string
+       */
+      function arrayToCsv(data){
+        return data.map(row =>
+                row
+                        .map(String)  // convert every value to String
+                        .map(v => v.replaceAll('"', '""'))  // escape double colons
+                        .map(v => `"${v}"`)  // quote it
+                        .join(',')  // comma-separated
+        ).join('\r\n');  // rows starting on new lines
+      }
+
+      /** Download contents as a file
+       * Source: https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+       */
+      function downloadBlob(content, filename, contentType) {
+        // Create a blob
+        var blob = new Blob([content], { type: contentType });
+        var url = URL.createObjectURL(blob);
+
+        // Create a link to download it
+        var pom = document.createElement('a');
+        pom.href = url;
+        pom.setAttribute('download', filename);
+        pom.click();
+      }
     </script>
   </body>
 </html>
