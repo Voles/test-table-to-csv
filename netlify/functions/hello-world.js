@@ -41,9 +41,15 @@ export const handler = async (event) => {
   console.table(res)
 
   const promises = res.map(async (value, index) => {
-    const eventData = await loadHtmlFromAtletieknu(value.href)
-    const a =  parseResultatentabel(value.onderdeel, eventData)
-    dataForCsv = dataForCsv.concat(a)
+    return new Promise(async (resolve, reject) => {
+      setTimeout(async () => {
+        const eventData = await loadHtmlFromAtletieknu(value.href)
+        const a =  parseResultatentabel(value.onderdeel, eventData)
+        dataForCsv = dataForCsv.concat(a)
+
+        resolve()
+      }, Math.round(Math.random() * 1000))
+    })
   })
 
   await Promise.all(promises)

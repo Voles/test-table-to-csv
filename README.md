@@ -1,5 +1,7 @@
 # Up and Running with Serverless Functions (Jamstack Explorers)
 
+App: https://stalwart-pika-068d5e.netlify.app/
+
 `npm i`
 `npm install netlify-cli --global`
 `ntl dev`
